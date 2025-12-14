@@ -1,5 +1,5 @@
 
-
+// Those are the possible moves for the knight
 const moves = [
     [+1, +2],
     [+1, -2],
@@ -11,6 +11,7 @@ const moves = [
     [-2, -1]
 ]
 
+// Returns true if a coordinate is a valid square on the 8x8 board.
 const inBounds = ([x,y]) => {
     if(Number.isInteger(x) && Number.isInteger(y)){
         if(x >= 0 && x < 8 && y>= 0 && y < 8){
@@ -24,24 +25,24 @@ const inBounds = ([x,y]) => {
     return false
 }
 
-
-
-const findNeighbours = (vertex) => {
-    let neighbours = []
+// Returns all legal knight moves from the given square.
+const getNeighbors = (vertex) => {
+    let neighbors = []
     moves.forEach((move)=>{
-        let possibleNeighbour = [vertex[0]+move[0], vertex[1]+move[1]]
-        if(inBounds(possibleNeighbour)){
-            neighbours.push(possibleNeighbour)
+        let possibleNeighbor = [vertex[0]+move[0], vertex[1]+move[1]]
+        if(inBounds(possibleNeighbor)){
+            neighbors.push(possibleNeighbor)
         }
     })
 
-    return neighbours
+    return neighbors
 }
 
+// Converts a coordinate into a stable string key
 const transformKey = ([x,y]) => `${x},${y}`;
 
-//console.log(findNeighbours([2,1]));
-
+// Runs BFS from startPoint until targetPoint is found.
+// Returns a parents map (childKey -> parentCoord) for path reconstruction.
 const bfsTraversal = (startPoint, targetPoint) => {
     const visited = {};
     const queue = [startPoint];
@@ -54,7 +55,7 @@ const bfsTraversal = (startPoint, targetPoint) => {
        
         dequeuedVertex = queue.shift();
 
-        for(const element of findNeighbours(dequeuedVertex)){
+        for(const element of getNeighbors(dequeuedVertex)){
             if(!visited[transformKey(element)]){
                 visited[transformKey(element)] = true;
                 queue.push(element);
@@ -69,27 +70,28 @@ const bfsTraversal = (startPoint, targetPoint) => {
 }
 
 
-
+// Finds the shortest sequence of knight moves from start to end.
 const knightMoves = (start, end) => {
     if(!inBounds(start) || !inBounds(end)) return null;
 
     if(transformKey(start) === transformKey(end)) return [start];
 
-    const path =  bfsTraversal(start, end);
+    const parents =  bfsTraversal(start, end);
     const result = [end];
-
-    const compilePath = (parents, currentKey) => {
+    
+    // Reconstructs the path by walking backwards through the parents map.
+    const buildPath = (parents, currentKey) => {
     if(currentKey === transformKey(start)) return
 
     const parentCoord = parents[currentKey];
 
     result.unshift(parentCoord)
 
-    compilePath(parents, transformKey(parentCoord))
+    buildPath(parents, transformKey(parentCoord))
     
    }
 
-   compilePath(path, transformKey(end))
+   buildPath(parents, transformKey(end))
 
    return result;
 };
