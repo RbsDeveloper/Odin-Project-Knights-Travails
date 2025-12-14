@@ -38,6 +38,8 @@ const findNeighbours = (vertex) => {
     return neighbours
 }
 
+const transformKey = ([x,y]) => `${x},${y}`;
+
 //console.log(findNeighbours([2,1]));
 
 const bfsTraversal = (startPoint, targetPoint) => {
@@ -45,7 +47,7 @@ const bfsTraversal = (startPoint, targetPoint) => {
     const queue = [startPoint];
     const parents = {};
 
-    visited[startPoint] = true;
+    visited[transformKey(startPoint)] = true;
 
     let dequeuedVertex
     while(queue.length) {
@@ -53,38 +55,41 @@ const bfsTraversal = (startPoint, targetPoint) => {
         dequeuedVertex = queue.shift();
 
         for(const element of findNeighbours(dequeuedVertex)){
-            if(!visited[element]){
-                visited[element] = true;
+            if(!visited[transformKey(element)]){
+                visited[transformKey(element)] = true;
                 queue.push(element);
-                parents[element] = dequeuedVertex;
-                console.log(element, targetPoint)
+                parents[transformKey(element)] = dequeuedVertex;
             }
-            if(`${element}` === `${targetPoint}`){
-                    console.log('here it is')
+            if(transformKey(element) === transformKey(targetPoint)){
                     return parents;
             }
         }
     }
-   
+   return undefined
 }
 
 
 
 const knightMoves = (start, end) => {
-   const path =  bfsTraversal(start, end);
-   console.log(path)
+    if(!inBounds(start) || !inBounds(end)) return null;
+
+    if(transformKey(start) === transformKey(end)) return [start];
+
+    const path =  bfsTraversal(start, end);
     const result = [end];
 
-   const compilePath = (obj, prop) => {
-    if(`${prop}` === `${start}`) return
+    const compilePath = (parents, currentKey) => {
+    if(currentKey === transformKey(start)) return
 
-    result.unshift(obj[prop])
+    const parentCoord = parents[currentKey];
 
-    compilePath(obj, obj[prop])
+    result.unshift(parentCoord)
+
+    compilePath(parents, transformKey(parentCoord))
     
    }
 
-   compilePath(path, end)
+   compilePath(path, transformKey(end))
 
    return result;
 };
