@@ -96,4 +96,3 @@ const knightMoves = (start, end) => {
    return result;
 };
 
-console.log(knightMoves([0,0],[3,4]))
