@@ -38,30 +38,55 @@ const findNeighbours = (vertex) => {
     return neighbours
 }
 
-console.log(findNeighbours([0,0]));
+//console.log(findNeighbours([2,1]));
 
-const bfsTraversal = (startPoint) => {
+const bfsTraversal = (startPoint, targetPoint) => {
     const visited = {};
     const queue = [startPoint];
-    const result = [];
+    const parents = {};
 
     visited[startPoint] = true;
 
     let dequeuedVertex
     while(queue.length) {
+       
         dequeuedVertex = queue.shift();
-        result.push(dequeuedVertex);
-        dequeuedVertex.forEach(element => {
+
+        for(const element of findNeighbours(dequeuedVertex)){
             if(!visited[element]){
                 visited[element] = true;
                 queue.push(element);
+                parents[element] = dequeuedVertex;
+                console.log(element, targetPoint)
             }
-        });
+            if(`${element}` === `${targetPoint}`){
+                    console.log('here it is')
+                    return parents;
+            }
+        }
     }
-    return result;
-
+   
 }
+
+
 
 const knightMoves = (start, end) => {
-    // Logic
-}
+   const path =  bfsTraversal(start, end);
+   console.log(path)
+    const result = [end];
+
+   const compilePath = (obj, prop) => {
+    if(`${prop}` === `${start}`) return
+
+    result.unshift(obj[prop])
+
+    compilePath(obj, obj[prop])
+    
+   }
+
+   compilePath(path, end)
+
+   return result;
+};
+
+console.log(knightMoves([0,0],[3,4]))
